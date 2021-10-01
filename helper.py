@@ -2645,10 +2645,22 @@ class Client(object):
         cdp.on('Network.webSocketFrameSent', self.printResponse)  # Calls printResponse when a websocket is sent
         await asyncio.sleep(1000)
     
+    async def getTitle(self, author_id, thread_id):
+        url = await self.tabs[0].evaluate("() => window.location.href")
+        await self.tabs[0].goto('https://m.facebook.com/messages/t/' + str(author_id))
+        titleObj = await self.tabs[0].querySelector('title')
+        title = await self.tabs[0].evaluate('(element) => element.textContent', titleObj)
+        # print(title)
+        await self.tabs[0].goto(url)
+        # return title
+        global titleInfo
+        titleInfo = title
+        self.printTitle()
+
     def __init__(
         self
     ):
-        print("gg")
+        # print("gg")
         
         asyncio.get_event_loop().run_until_complete(self.main())
        

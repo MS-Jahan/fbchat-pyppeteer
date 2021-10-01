@@ -4,6 +4,7 @@ import asyncio
 from syncer import sync
 import time
 import threading
+from fbchat.models import *
 # import nest_asyncio
 # nest_asyncio.apply()
 
@@ -123,18 +124,6 @@ def getMessageContent(self, t, messageObject):
 
 class CustomClient(Client):
 
-    async def getTitle(self):
-        url = await self.tabs[0].evaluate("() => window.location.href")
-        await self.tabs[0].goto('https://m.facebook.com/messages/t/' + str(author_id))
-        titleObj = await self.tabs[0].querySelector('title')
-        title = await self.tabs[0].evaluate('(element) => element.textContent', titleObj)
-        # print(title)
-        await self.tabs[0].goto(url)
-        # return title
-        global titleInfo
-        titleInfo = title
-        printTitle()
-
     def on2FACode(self):
         # global tfaCode
         # global tfa_code
@@ -181,16 +170,12 @@ class CustomClient(Client):
     #         writeLogs(time.ctime() + " | " + content, thread.name, date)
     #         #print("### " + thread.name + " ###" + "\n" + content)
 
+    def printTitle(self):
+        global titleInfo
+        print(titleInfo)
+
     def onMessage(self, author_id, message_object, thread_id, thread_type, ts, metadata, msg, **kwargs):
-
-        def printTitle():
-            global titleInfo
-            print(titleInfo)
-
-
-        asyncio.create_task(getTitle(self))
-
-
+        asyncio.create_task(self.getTitle(author_id))
 
     def onReactionAdded(self, mid, reaction, author_id, thread_id, thread_type, ts, msg, **kwargs):
         date = datetime.now()
